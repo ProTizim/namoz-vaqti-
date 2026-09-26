@@ -22,6 +22,14 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
+    - name: Fix Source Folder Structure
+      run: |
+        mkdir -p app/src/main/java
+        if [ -d "src/main/java" ]; then
+          mv src/main/java/* app/src/main/java/ || true
+          rm -rf src
+        fi
+
     - name: Grant Execute Permission for Gradle
       run: chmod +x ./gradlew
 
