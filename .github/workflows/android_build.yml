@@ -20,25 +20,40 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
 
-    - name: Fix Source Folder Structure
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Fix Project and Folder Structure
       run: |
+        # Kerakli papkalarni yaratish
         mkdir -p app/src/main/java
+        
+        # Java fayllarni to'g'ri joyga ko'chirish
         if [ -d "src/main/java" ]; then
           mv src/main/java/* app/src/main/java/ || true
           rm -rf src
         fi
+        
+        # Manifest faylini to'g'ri joyga ko'chirish
+        if [ -f "src/main/AndroidManifest.xml" ]; then
+          mv src/main/AndroidManifest.xml app/src/main/ || true
+        fi
 
-    - name: Grant Execute Permission for Gradle
-      run: chmod +x ./gradlew
+        # Yetishmayotgan Gradle sozlamalarini avtomatik yaratish
+        echo "gradleVersion = '8.2'" > gradle.properties
+        
+        # Asosiy gradle wrapper fayllarini yaratib olish
+        gradle wrapper --gradle-version 8.2
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug
+      run: |
+        chmod +x ./gradlew
+        ./gradlew assembleDebug
 
     - name: Upload Finished APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: MosqueSilentMode-SafeAPK
+        name: NamozVaqti-SafeAPK
         path: app/build/outputs/apk/debug/app-debug.apk
         retention-days: 7
